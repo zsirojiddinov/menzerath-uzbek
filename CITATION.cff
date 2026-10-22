@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this package, please cite it as below."
+type: dataset
+title: "What the Menzerath–Altmann exponent measures: clauses, morphemes and syllables in Uzbek — supplementary package"
+version: 1.0.0
+authors:
+  - family-names: Sirojiddinov
+    given-names: Z.
+    orcid: "https://orcid.org/0000-0002-6249-032X"
+    affiliation: "National University of Uzbekistan"
+  - family-names: Khakimov
+    given-names: M.
+    orcid: "https://orcid.org/0000-0001-6937-800X"
+    affiliation: "National University of Uzbekistan"
+license:
+  - CC-BY-4.0
+  - MIT
+repository-code: "https://github.com/zsirojiddinov/menzerath-uzbek"
+keywords:
+  - "Menzerath–Altmann law"
+  - "Uzbek"
+  - "agglutination"
+  - "preregistration"
+  - "quantitative linguistics"

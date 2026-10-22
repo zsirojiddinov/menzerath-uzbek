@@ -1,0 +1,27 @@
+{
+  "title": "What the Menzerath–Altmann exponent measures: clauses, morphemes and syllables in Uzbek — supplementary package",
+  "upload_type": "dataset",
+  "description": "Supplementary package for a preregistered study of the Menzerath–Altmann law in Uzbek at three levels: sentence–clause–word, word–morpheme–grapheme and word–syllable–grapheme. It contains the preregistration and its amendment, the frozen analysis script and the results of its single run, post hoc analyses, figures, and token- and clause-level count data (no text) from two Uzbek corpora and the UD Uzbek treebanks. The main fit table can be recomputed from the released data with the included script.",
+  "version": "1.0.0",
+  "creators": [
+    {
+      "name": "Sirojiddinov, Z.",
+      "orcid": "0000-0002-6249-032X",
+      "affiliation": "National University of Uzbekistan"
+    },
+    {
+      "name": "Khakimov, M.",
+      "orcid": "0000-0001-6937-800X",
+      "affiliation": "National University of Uzbekistan"
+    }
+  ],
+  "keywords": [
+    "Menzerath–Altmann law",
+    "Uzbek",
+    "agglutination",
+    "preregistration",
+    "quantitative linguistics"
+  ],
+  "license": "cc-by-4.0",
+  "access_right": "open"
+}

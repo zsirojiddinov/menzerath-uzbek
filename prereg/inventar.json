@@ -1,0 +1,796 @@
+{
+ "langar": {
+  "db_md5": "732a97a56205a00c1c28a100275782ce",
+  "commit": "285e5ec"
+ },
+ "1_treebank": {
+  "fayllar": {
+   "UD_Uzbek-UT/uz_ut-ud-test.conllu": {
+    "sha256": "6297430a3ac34275eefeab74d3b074618894704082e73e9d048ade561271a03a",
+    "ud_baholash_nusxasi_teng": true,
+    "gap": 500,
+    "token": 5930,
+    "token_punctsiz": 5070,
+    "mwt_qator": 0,
+    "lemma_%": 100.0,
+    "feats_bosh_emas_%": 78.52,
+    "case_%": 51.95,
+    "case_NOUN_PROPN_PRON_%": 96.0,
+    "feats_kalitlar": {
+     "Number": 2697,
+     "Case": 2634,
+     "VerbForm": 926,
+     "Person": 551,
+     "Tense": 515,
+     "Mood": 475,
+     "PronType": 284,
+     "Poss": 230,
+     "NumType": 211,
+     "Voice": 99,
+     "Polarity": 56,
+     "Aspect": 42,
+     "Abbr": 20,
+     "Foreign": 12,
+     "Degree": 5,
+     "Reflex": 4,
+     "ExtPos": 1
+    },
+    "misc_kalitlar": {
+     "SpaceAfter": 831
+    }
+   },
+   "UD_Uzbek-UzUDT/uz_uzudt-ud-train.conllu": {
+    "sha256": "c1fb9548cbba34e3dddd5ca2af7d5eb3e37f1e8a6e640e29061ff5b9e581aa12",
+    "ud_baholash_nusxasi_teng": true,
+    "gap": 483,
+    "token": 5442,
+    "token_punctsiz": 4308,
+    "mwt_qator": 0,
+    "lemma_%": 100.0,
+    "feats_bosh_emas_%": 57.99,
+    "case_%": 39.55,
+    "case_NOUN_PROPN_PRON_%": 72.28,
+    "feats_kalitlar": {
+     "Case": 1704,
+     "Number": 674,
+     "VerbForm": 662,
+     "Person": 470,
+     "PronType": 414,
+     "Tense": 345,
+     "Mood": 336,
+     "Person[psor]": 318,
+     "Number[psor]": 310,
+     "Aspect": 256,
+     "NumType": 58,
+     "Reflex": 28,
+     "Polarity": 24,
+     "Voice": 10,
+     "ExtPos": 8,
+     "Poss": 1,
+     "Evident": 1
+    },
+    "misc_kalitlar": {
+     "SpaceAfter": 19,
+     "Translit": 12,
+     "Morf": 1,
+     "Clitic": 1
+    }
+   },
+   "UD_Uzbek-UzUDT/uz_uzudt-ud-test.conllu": {
+    "sha256": "6a191e59b6cbaade250463109581e95350702eb85fff765f407eca00ed1937dc",
+    "ud_baholash_nusxasi_teng": true,
+    "gap": 201,
+    "token": 2140,
+    "token_punctsiz": 1703,
+    "mwt_qator": 0,
+    "lemma_%": 100.0,
+    "feats_bosh_emas_%": 61.42,
+    "case_%": 42.22,
+    "case_NOUN_PROPN_PRON_%": 79.21,
+    "feats_kalitlar": {
+     "Case": 719,
+     "Number": 254,
+     "VerbForm": 234,
+     "PronType": 161,
+     "Person[psor]": 147,
+     "Person": 143,
+     "Number[psor]": 135,
+     "Tense": 129,
+     "Mood": 96,
+     "Aspect": 72,
+     "Evident": 25,
+     "Polarity": 21,
+     "NumType": 14,
+     "Voice": 6,
+     "Reflex": 4,
+     "Poss": 3
+    },
+    "misc_kalitlar": {
+     "SpaceAfter": 4
+    }
+   }
+  },
+  "treebank": {
+   "UT": {
+    "gap": 500,
+    "token": 5930,
+    "klauza": {
+     "tor": {
+      "gap": 500,
+      "klauza": 742,
+      "ortacha": 1.484,
+      "taqsimot": {
+       "1": 310,
+       "2": 145,
+       "3": 39,
+       "4": 5,
+       "5": 1
+      }
+     },
+     "tor_takrorsiz": {
+      "gap": 500,
+      "klauza": 742,
+      "ortacha": 1.484,
+      "taqsimot": {
+       "1": 310,
+       "2": 145,
+       "3": 39,
+       "4": 5,
+       "5": 1
+      }
+     },
+     "keng": {
+      "gap": 500,
+      "klauza": 933,
+      "ortacha": 1.866,
+      "taqsimot": {
+       "1": 196,
+       "2": 201,
+       "3": 82,
+       "4": 16,
+       "5": 5
+      }
+     },
+     "keng_takrorsiz": {
+      "gap": 500,
+      "klauza": 933,
+      "ortacha": 1.866,
+      "taqsimot": {
+       "1": 196,
+       "2": 201,
+       "3": 82,
+       "4": 16,
+       "5": 5
+      }
+     }
+    }
+   },
+   "UzUDT": {
+    "gap": 684,
+    "token": 7582,
+    "klauza": {
+     "tor": {
+      "gap": 684,
+      "klauza": 1352,
+      "ortacha": 1.9766,
+      "taqsimot": {
+       "1": 318,
+       "2": 188,
+       "3": 102,
+       "4": 39,
+       "5": 28,
+       "6": 7,
+       "7": 2
+      }
+     },
+     "tor_takrorsiz": {
+      "gap": 682,
+      "klauza": 1347,
+      "ortacha": 1.9751,
+      "taqsimot": {
+       "1": 318,
+       "2": 187,
+       "3": 101,
+       "4": 39,
+       "5": 28,
+       "6": 7,
+       "7": 2
+      }
+     },
+     "keng": {
+      "gap": 684,
+      "klauza": 1628,
+      "ortacha": 2.3801,
+      "taqsimot": {
+       "1": 237,
+       "2": 199,
+       "3": 122,
+       "4": 65,
+       "5": 23,
+       "6": 23,
+       "7": 9,
+       "8": 5,
+       "11": 1
+      }
+     },
+     "keng_takrorsiz": {
+      "gap": 682,
+      "klauza": 1623,
+      "ortacha": 2.3798,
+      "taqsimot": {
+       "1": 237,
+       "2": 198,
+       "3": 121,
+       "4": 65,
+       "5": 23,
+       "6": 23,
+       "7": 9,
+       "8": 5,
+       "11": 1
+      }
+     }
+    }
+   },
+   "jami": {
+    "gap": 1184,
+    "token": 13512,
+    "klauza": {
+     "tor": {
+      "gap": 1184,
+      "klauza": 2094,
+      "ortacha": 1.7686,
+      "taqsimot": {
+       "1": 628,
+       "2": 333,
+       "3": 141,
+       "4": 44,
+       "5": 29,
+       "6": 7,
+       "7": 2
+      }
+     },
+     "tor_takrorsiz": {
+      "gap": 1182,
+      "klauza": 2089,
+      "ortacha": 1.7673,
+      "taqsimot": {
+       "1": 628,
+       "2": 332,
+       "3": 140,
+       "4": 44,
+       "5": 29,
+       "6": 7,
+       "7": 2
+      }
+     },
+     "keng": {
+      "gap": 1184,
+      "klauza": 2561,
+      "ortacha": 2.163,
+      "taqsimot": {
+       "1": 433,
+       "2": 400,
+       "3": 204,
+       "4": 81,
+       "5": 28,
+       "6": 23,
+       "7": 9,
+       "8": 5,
+       "11": 1
+      }
+     },
+     "keng_takrorsiz": {
+      "gap": 1182,
+      "klauza": 2556,
+      "ortacha": 2.1624,
+      "taqsimot": {
+       "1": 433,
+       "2": 399,
+       "3": 203,
+       "4": 81,
+       "5": 28,
+       "6": 23,
+       "7": 9,
+       "8": 5,
+       "11": 1
+      }
+     }
+    }
+   }
+  },
+  "takror_gaplar": [
+   "UzUDT:s130",
+   "UzUDT:s132"
+  ]
+ },
+ "2_k1k2": {
+  "K1": {
+   "manba_json": "sentence_matematik_model_kkt_simple.json",
+   "manba_sha256": "8b679a8ff8819b90a6a14c23c0c82c3a22ce0486a819a7e42946ac2d0b621a07",
+   "kodlangan_sha256": "b8a7033bfa5099aa962b67ebd06b9e05501e3697d02beb98e8b2dd413acdd49c",
+   "gap": 889,
+   "token": 16890,
+   "vdu": 2786,
+   "vdu_gap_ortacha": 3.1339,
+   "vdu_gap_taqsimot": {
+    "1": 141,
+    "2": 202,
+    "3": 227,
+    "4": 162,
+    "5": 80,
+    "6": 47,
+    "7": 21,
+    "8": 4,
+    "9": 2,
+    "10": 2,
+    "13": 1
+   },
+   "vdu_uzunlik_ortacha": 6.0625,
+   "gap_uzunlik_ortacha": 18.9989,
+   "oxirgi_kod_G_gap": 593,
+   "shovqin_%": 4.39,
+   "shovqin_n": "5/114",
+   "paket_heldout_indeks": 53
+  },
+  "K2": {
+   "manba_json": "math_models_tagor_kkt_simple.json",
+   "manba_sha256": "34930538754cb1bd31edc4cbc88060a4827370adb637c4ac52090c498c6b33b1",
+   "kodlangan_sha256": "689a0b140ec3325a224262940b21a87ee03fe0760f32b50a9a6d5013c9251d08",
+   "gap": 4297,
+   "token": 53596,
+   "vdu": 11694,
+   "vdu_gap_ortacha": 2.7214,
+   "vdu_gap_taqsimot": {
+    "1": 903,
+    "2": 1361,
+    "3": 1017,
+    "4": 511,
+    "5": 271,
+    "6": 132,
+    "7": 49,
+    "8": 31,
+    "9": 6,
+    "10": 8,
+    "11": 4,
+    "12": 2,
+    "16": 1,
+    "18": 1
+   },
+   "vdu_uzunlik_ortacha": 4.5832,
+   "gap_uzunlik_ortacha": 12.4729,
+   "oxirgi_kod_G_gap": 2887,
+   "shovqin_%": 8.03,
+   "shovqin_n": "31/386",
+   "paket_heldout_indeks": 409
+  },
+  "shovqin_jami": {
+   "%": 7.2,
+   "n": "36/500",
+   "wilson95": [
+    5.25,
+    9.81
+   ]
+  }
+ },
+ "2_held_out": {
+  "K1": 0,
+  "K2": 0,
+  "treebank": 0,
+  "jami_tekshirildi": 6370
+ },
+ "5_korpuslar": {
+  "oltin_200": {
+   "gap": 200,
+   "token": 727,
+   "held_out_moslik": 12,
+   "tolqin2": false
+  },
+  "tashqi50": {
+   "gap": 50,
+   "token": 481,
+   "held_out_moslik": 0,
+   "tolqin2": false
+  },
+  "inkor_dev": {
+   "gap": 885,
+   "token": 15798,
+   "held_out_moslik": 1,
+   "tolqin2": false
+  },
+  "savol_dev": {
+   "gap": 110,
+   "token": 897,
+   "held_out_moslik": 0,
+   "tolqin2": false
+  },
+  "uzen900": {
+   "gap": 900,
+   "token": 20048,
+   "held_out_moslik": 0,
+   "tolqin2": false
+  },
+  "scitech_dev": {
+   "gap": 49,
+   "token": 886,
+   "held_out_moslik": 0,
+   "tolqin2": false
+  },
+  "test100": {
+   "gap": 100,
+   "token": 758,
+   "held_out_moslik": 0,
+   "tolqin2": false
+  },
+  "cc_probe": {
+   "gap": 32,
+   "token": 118,
+   "held_out_moslik": 0,
+   "tolqin2": false
+  },
+  "train231": {
+   "gap": 231,
+   "token": 3946,
+   "held_out_moslik": 24,
+   "tolqin2": false
+  },
+  "tashqi40": {
+   "gap": 40,
+   "token": 173,
+   "held_out_moslik": 0,
+   "tolqin2": false
+  },
+  "mas_v1": {
+   "gap": 73,
+   "token": 257,
+   "held_out_moslik": 0,
+   "tolqin2": false
+  },
+  "mas_v2": {
+   "gap": 104,
+   "token": 378,
+   "held_out_moslik": 0,
+   "tolqin2": false
+  },
+  "scitech_test": {
+   "gap": 49,
+   "token": 832,
+   "held_out_moslik": 0,
+   "tolqin2": false
+  },
+  "inkor_test": {
+   "gap": 590,
+   "token": 10091,
+   "held_out_moslik": 0,
+   "tolqin2": false
+  },
+  "savol_test": {
+   "gap": 72,
+   "token": 543,
+   "held_out_moslik": 0,
+   "tolqin2": false
+  },
+  "flores_s50": {
+   "gap": 50,
+   "token": 835,
+   "held_out_moslik": 50,
+   "tolqin2": true
+  },
+  "flores_t1": {
+   "gap": 50,
+   "token": 620,
+   "held_out_moslik": 50,
+   "tolqin2": true
+  },
+  "flores_t2": {
+   "gap": 50,
+   "token": 597,
+   "held_out_moslik": 50,
+   "tolqin2": true
+  },
+  "flores_t3": {
+   "gap": 50,
+   "token": 624,
+   "held_out_moslik": 50,
+   "tolqin2": true
+  },
+  "flores_t4": {
+   "gap": 50,
+   "token": 601,
+   "held_out_moslik": 50,
+   "tolqin2": true
+  },
+  "flores_t5": {
+   "gap": 60,
+   "token": 715,
+   "held_out_moslik": 60,
+   "tolqin2": true
+  },
+  "test6": {
+   "gap": 60,
+   "token": 723,
+   "held_out_moslik": 60,
+   "tolqin2": true
+  },
+  "conj_dev": {
+   "gap": 70,
+   "token": 1491,
+   "held_out_moslik": 0,
+   "tolqin2": false
+  },
+  "rol_dev": {
+   "gap": 70,
+   "token": 1505,
+   "held_out_moslik": 0,
+   "tolqin2": false
+  },
+  "predlog_dev_tuzatish": {
+   "gap": 70,
+   "token": 1554,
+   "held_out_moslik": 1,
+   "tolqin2": false
+  },
+  "predlog_dev_baho": {
+   "gap": 98,
+   "token": 2557,
+   "held_out_moslik": 1,
+   "tolqin2": false
+  },
+  "aligned_pairs": {
+   "gap": 615,
+   "token": 11600,
+   "held_out_moslik": 24,
+   "tolqin2": false
+  },
+  "raw_pairs": {
+   "yozuv": 185,
+   "kalitlar": [
+    "article_id",
+    "doi",
+    "en_abstract",
+    "journal",
+    "journal_name",
+    "ru_abstract",
+    "title_en",
+    "url",
+    "uz_abstract",
+    "year"
+   ],
+   "tolqin2": false
+  },
+  "flagged": {
+   "gap": 286,
+   "token": 5934,
+   "held_out_moslik": 0,
+   "tolqin2": false
+  }
+ },
+ "3_analizator": {
+  "K1": {
+   "kirish_token": 16890,
+   "faqat_tinish": 0,
+   "bir_necha_qismga_bolingan": 0,
+   "birlik_token": 16890,
+   "birlik_tur": 7355,
+   "tahlil_%_token": 82.91,
+   "tahlil_%_tur": 75.02,
+   "unknown_%_token": 17.09,
+   "unknown_%_tur": 24.98,
+   "unknown_raqam_token": 225,
+   "affiks_soni_taqsimot_token": {
+    "0": 7199,
+    "1": 4352,
+    "2": 1949,
+    "3": 454,
+    "4": 47,
+    "5": 2
+   },
+   "affiks_soni_ortacha_token": 0.7006,
+   "affiks_soni_taqsimot_tur": {
+    "0": 1513,
+    "1": 2156,
+    "2": 1437,
+    "3": 365,
+    "4": 45,
+    "5": 2
+   },
+   "yuza_teng_%_token": 97.25,
+   "yuza_teng_%_tur": 95.92,
+   "nomzod_gt1_%_token": 36.03,
+   "nomzod_gt1_%_tur": 40.4,
+   "nomzod_taqsimot_tur": {
+    "0": 21,
+    "1": 3268,
+    "2": 1820,
+    "3": 370,
+    "4": 33,
+    "5": 6
+   }
+  },
+  "K2": {
+   "kirish_token": 53596,
+   "faqat_tinish": 0,
+   "bir_necha_qismga_bolingan": 0,
+   "birlik_token": 53596,
+   "birlik_tur": 15760,
+   "tahlil_%_token": 83.65,
+   "tahlil_%_tur": 73.79,
+   "unknown_%_token": 16.35,
+   "unknown_%_tur": 26.21,
+   "unknown_raqam_token": 114,
+   "affiks_soni_taqsimot_token": {
+    "0": 22490,
+    "1": 15571,
+    "2": 5623,
+    "3": 1036,
+    "4": 104,
+    "5": 6,
+    "6": 1
+   },
+   "affiks_soni_ortacha_token": 0.6776,
+   "affiks_soni_taqsimot_tur": {
+    "0": 2601,
+    "1": 4985,
+    "2": 3200,
+    "3": 759,
+    "4": 77,
+    "5": 6,
+    "6": 1
+   },
+   "yuza_teng_%_token": 96.3,
+   "yuza_teng_%_tur": 94.81,
+   "nomzod_gt1_%_token": 30.13,
+   "nomzod_gt1_%_tur": 32.6,
+   "nomzod_taqsimot_tur": {
+    "0": 198,
+    "1": 7640,
+    "2": 3172,
+    "3": 568,
+    "4": 45,
+    "5": 6
+   }
+  },
+  "treebank": {
+   "kirish_token": 11081,
+   "faqat_tinish": 0,
+   "bir_necha_qismga_bolingan": 0,
+   "birlik_token": 11081,
+   "birlik_tur": 5847,
+   "tahlil_%_token": 89.82,
+   "tahlil_%_tur": 85.21,
+   "unknown_%_token": 10.18,
+   "unknown_%_tur": 14.79,
+   "unknown_raqam_token": 98,
+   "affiks_soni_taqsimot_token": {
+    "0": 4803,
+    "1": 3437,
+    "2": 1426,
+    "3": 261,
+    "4": 25,
+    "5": 1
+   },
+   "affiks_soni_ortacha_token": 0.7211,
+   "affiks_soni_taqsimot_tur": {
+    "0": 1537,
+    "1": 2002,
+    "2": 1172,
+    "3": 245,
+    "4": 25,
+    "5": 1
+   },
+   "yuza_teng_%_token": 93.07,
+   "yuza_teng_%_tur": 93.32,
+   "nomzod_gt1_%_token": 35.03,
+   "nomzod_gt1_%_tur": 36.95,
+   "nomzod_taqsimot_tur": {
+    "0": 41,
+    "1": 3100,
+    "2": 1460,
+    "3": 312,
+    "4": 56,
+    "5": 13
+   }
+  }
+ },
+ "6_kod": [
+  {
+   "fayl": "analysis/ijcl-paket/supplement/scripts/common.py",
+   "funksiyalar": "heaps_beta, to_blocks (B2/B1), v0_clauses, v0_index_clauses, load_coded, unknown_codes, heldout",
+   "sha256": "ad448717bc394c6fb1963a7817b5bd07c8a68aa368880b77cf0ec1d1e23ea353"
+  },
+  {
+   "fayl": "analysis/ijcl-paket/supplement/scripts/ud_tools.py",
+   "funksiyalar": "conllu_gaplar, load_treebank, klauza_boshlari (asosiy=keng / xcomp_aclsiz=tor), gap_etaloni, kkt_teg, hizala, tizim_chegara, moslash, prf1, kesim_sinfi, baholash",
+   "sha256": "0d1dd3665d8abc32352d4948479857a880059a30da2705ff8d35b4c1e3178b4b"
+  },
+  {
+   "fayl": "analysis/ijcl-paket/supplement/scripts/s02_random_cut.py",
+   "funksiyalar": "a0_pieces, a2_pieces, real_spans, run (tasodifiy kesish A0/A1/A2)",
+   "sha256": "12f5aaea87259eea5e2c17acbd28f0ba1de7a720c876b1169ba0ae1881721135"
+  },
+  {
+   "fayl": "analysis/ijcl-paket/supplement/scripts/s03_fragments.py",
+   "funksiyalar": "muqobil segmentatsiya qoidalari (predikatsiz bo'laklar)",
+   "sha256": "aa5e80268c87500dae0825e1b489ed41d1785b7c4b240f94fb75a265a12041b5"
+  },
+  {
+   "fayl": "analysis/ijcl-paket/supplement/scripts/s11_ud_segmentation.py",
+   "funksiyalar": "V0 chegaralari vs oltin klauza (P/R, tor/keng)",
+   "sha256": "353389a564c5b4ed155eb12245c7a06dc2567730b459d66f305e9ddba9246f76"
+  },
+  {
+   "fayl": "analysis/ijcl-paket/supplement/scripts/s12_ud_gold.py",
+   "funksiyalar": "pats, betas, pair_delta, half_interval (1 000 yarim-tanlama), unit_codes",
+   "sha256": "5755a14ff6aeeb8e712752744f3f3c47577d315bebfcafd790fabcf74422d307"
+  },
+  {
+   "fayl": "analysis/ijcl-paket/supplement/scripts/s10_ud_tagging.py",
+   "funksiyalar": "UD->KKT teg aniqligi",
+   "sha256": "297350cab64b13b55f5fd74fb721714e6905185203311af4810f1480489f2d76"
+  },
+  {
+   "fayl": "analysis/ijcl-paket/supplement/scripts/s14_noise_sample.py",
+   "funksiyalar": "shovqin namunasi (500 token, Wilson)",
+   "sha256": "49ff8b10173fd02f03964335dd7ce61ef52abaf7a580b6817c222a1037b6967a"
+  },
+  {
+   "fayl": "analysis/ijcl-paket/supplement/data/ud_kkt_mapping.tsv",
+   "funksiyalar": "UPOS -> KKT teg xaritasi (mapped/excluded/unmappable)",
+   "sha256": "1686e40f114482ff5bda3971211a609f81e536817b180f49e6e542de104d1e2a"
+  },
+  {
+   "fayl": "analysis/ijcl-paket/supplement/data/ud_system_output.json",
+   "funksiyalar": "tizim tokenlari, teglari, V0 birliklari va oltin klauza proyeksiyasi (1 182 gap)",
+   "sha256": "259fd5ab7cb3fcde4200aaa858bc38174828364f9fc38e16de98d0a4e06076e9"
+  },
+  {
+   "fayl": "analysis/ijcl-m2/iq.py",
+   "funksiyalar": "soz_spanlari, v0_klauzalar, proyeksiya, v0_chegaralar, b2, b2k, kelishik_va_manba",
+   "sha256": "f2698f805930fb22c682ba0131036a2523553bf346140a19d1cfe2993a96be7b"
+  },
+  {
+   "fayl": "analysis/ijcl-mustahkamlik/hisob.py",
+   "funksiyalar": "setka, ekk, beta_royxat, yarim_indeks, boot_indeks, juft_delta, oraliq_yarim, oraliq_boot",
+   "sha256": "ee2f38b8e3ac6e124bcb2c9c2d0198efb31f4457e074376dee6377e86a8c82b5"
+  },
+  {
+   "fayl": "analysis/ijcl-nazorat/olchov.py",
+   "funksiyalar": "a2_qisqa, a2_invariant, a_qism, b_qism (random-cut nazorati, aniq uzunlik)",
+   "sha256": "83730cdd48ee286e11d17363d68c6709cc79ff980428a47c68e70caf19c50bd6"
+  },
+  {
+   "fayl": "analysis/ud-baholash/etalon.py",
+   "funksiyalar": "conllu_gaplar, klauza_boshlari, gap_etaloni, upos_inventar (ud_tools ning manbasi)",
+   "sha256": "d5e4161407f46158132abb68c282d77bff933fcd6d4d3e6f5fc29dce61aedac8"
+  },
+  {
+   "fayl": "analysis/ud-baholash/seg_baho.py",
+   "funksiyalar": "yaroqli_kesimlar, klauza_spanlari, tizim_chegara, oltin_provenans, moslash",
+   "sha256": "28cbcc9cb84f6bff463de63d665dae3d45edfc21c5bbae5ebe3c9cf335d26f0f"
+  },
+  {
+   "fayl": "analysis/ud-baholash/teg_baho.py",
+   "funksiyalar": "squash, ud_chunk_xarita, tizim_chunk_xarita, hizala, prf",
+   "sha256": "8fd507ee0b60209e1f44b2da075a79d46dd2f4b1b585697c8fa1e60e50f62a7d"
+  },
+  {
+   "fayl": "analysis/gap_model_ierarxiya.py",
+   "funksiyalar": "load_corpus (K1/K2 matn surati), heaps_beta, coverage_curve, UZEN_JSON, TAGOR_JSON",
+   "sha256": "34c23c7dfb5d57ab1b59c66f65b575c3728faebddf19497dc32fb55445d1e36a"
+  },
+  {
+   "fayl": "analysis/ierarxiya_qayta_kodlash.py",
+   "funksiyalar": "_tahlil (analizator MEMO), _kodla (so'z -> KKT kod)",
+   "sha256": "340f43bc72a2db74e71d5a1ce47c215b78baab21f39b1fb5ff7a9ab447d36c78"
+  },
+  {
+   "fayl": "analysis/toplam_indeks.py",
+   "funksiyalar": "normallash, xesh, matnlar (2 119 to'plamlari)",
+   "sha256": "116f6325327cfd5ed916765773599f5af73bad357b0e745c981e4f00bb45de75"
+  },
+  {
+   "fayl": "analysis/_konvensiya/held_out.py",
+   "funksiyalar": "filtr, filtr_matn, norm_tok, gap_xesh, oyna_xeshlar",
+   "sha256": "558bce2a88753d017b75ad339bd41b95ff49cc058de3c4cfb8b229a3b40f76a2"
+  }
+ ]
+}
