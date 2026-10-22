@@ -14,6 +14,7 @@ Oxirida tekshiruvlar: (a) data/ da harfli satr yo'q, (b) held-out (gap xeshi + 8
 import argparse
 import csv
 import hashlib
+import hmac
 import importlib.util
 import json
 import re
@@ -35,7 +36,8 @@ SARLAVHA = ('What the Menzerath–Altmann exponent measures: clauses, morphemes 
             'supplementary package')
 VERSIYA = '1.0.0'
 GH = 'https://github.com/zsirojiddinov/menzerath-uzbek'
-MUALLIFLAR = (('Sirojiddinov', 'Z.', '0000-0002-6249-032X'), ('Khakimov', 'M.', '0000-0001-6937-800X'))
+MUALLIFLAR = (('Sirojiddinov', 'Ziyoviddin', '0000-0002-6249-032X'), ('Khakimov', 'Muftakh', '0000-0001-6937-800X'))
+TUZ = Path.home() / '.config' / 'menzerath-uzbek' / 'type_id.salt'     # maxfiy tuz — faqat lokal, hech qaysi repoda emas
 AFFIL = 'National University of Uzbekistan'
 SINF = {'yaroqli': 'valid', 'faqat_tutuq': 'apostrophe_only', 'tinish': 'punctuation', 'raqam': 'digit',
         'alifbo': 'non_alphabet'}
@@ -44,9 +46,10 @@ NUSXA = {'prereg': ('prereg.md', 'tuzatish_1.md', 'inventar.md', 'inventar.json'
          'code': ('tahlil.py', 'posthoc.py', 'rasm_uz.py', 'rasm_en.py', 'zenodo_eksport.py', 'reproduce_from_data.py'),
          'results': ('natija/natija.md', 'natija/natija.json', 'natija/posthoc.md', 'natija/posthoc.json')}
 LUGAT = {'tokens.csv': {'source': {'K1', 'K2', 'UT', 'UzUDT'}, 'token_class': set(SINF.values()),
-                        'analyzer_status': {'analysed', 'unknown', 'mismatch', ''}},
+                        'analyzer_status': {'analysed', 'unknown', 'mismatch', ''}, 'final_vowel': {'0', '1', ''},
+                        'is_word': {'0', '1'}, 'ends_o_g_before_apostrophe': {'0', '1', ''}},
          'clauses.csv': {'clause_type': {'main', 'subordinate', 'NA'}, 'definition': {'narrow', 'broad', 'automatic'}},
-         'cells_table1.csv': {'definition': {'narrow', 'broad', 'automatic'}, 'in_fit': {'yes', 'no'}},
+         'cells_table1.csv': {'row': {'clause_narrow', 'morpheme_standard', 'syllable'}, 'in_fit': {'yes', 'no'}},
          'cells_A1.csv': {'row': {'treebank_broad', 'K1_automatic', 'K2_automatic'}, 'in_fit': {'yes', 'no'}},
          'cells_A2.csv': {'in_fit': {'yes', 'no'}},
          'cells_A3.csv': {'level': {'clause_narrow', 'morpheme_standard'}, 'in_fit': {'yes', 'no'}}}
@@ -87,15 +90,44 @@ def gap_idlari(tb, K):
 
 
 # ---------------------------------------------------------------- tokens.csv
-def tokenlar_qatorlari(Tg, A, kodlar, gid):
+TOKEN_USTUN = ['source', 'sentence_id', 'token_id', 'token_class', 'n_graphemes', 'n_syllables', 'n_morphemes', 'root_len',
+               'suffix_lens', 'suffix_type_codes', 'analyzer_status', 'pos_code',
+               'n_morphemes_fewest', 'root_len_fewest', 'suffix_lens_fewest', 'n_morphemes_most', 'root_len_most',
+               'suffix_lens_most', 'type_id', 'n_graphemes_unsegmented', 'final_vowel', 'is_word', 'unit_id',
+               'ends_o_g_before_apostrophe']
+
+
+def type_id(tuz, t):
+    """HMAC-SHA256(kalit = maxfiy tuz, xabar = tozalangan yuza shakl) ning birinchi 64 biti, o'nlik son. Tuzsiz xesh YO'Q."""
+    if len(tuz) < 32:
+        raise SystemExit("TO'XTA — tuz juda qisqa")
+    return str(int.from_bytes(hmac.new(tuz, t.encode('utf-8'), hashlib.sha256).digest()[:8], 'big'))
+
+
+def _qism_ustun(w, m):
+    mg = P.morf_grafemalari(w, m)
+    return [len(m), mg[0], ','.join(map(str, mg[1:]))]
+
+
+def tokenlar_qatorlari(Tg, A, kodlar, gid, K, tuz):
+    """Tg tartibida. K1/K2: unit_id — V0 birligining gapdagi tartib raqami (clauses.csv `automatic` clause_id bilan bir xil)."""
     rows, pos = [], Counter()
     for korpus, i, raw in Tg:
         pos[korpus, i] += 1
+        j = pos[korpus, i] - 1
         sid = gid[korpus, i]
         guruh, t = P.tozala_tok(raw)
         r = [sid.split('-')[0], sid, pos[korpus, i], SINF[guruh]]
+        qosh = [int(T.sozmi(raw)), '', '']
+        if korpus in ('K1', 'K2'):
+            g = K[korpus][i]
+            if g['words'][j] != raw:
+                raise SystemExit("TO'XTA — K token tartibi so'zlar bilan mos emas")
+            qosh[1] = sorted(set(g['v0'])).index(g['v0'][j]) + 1
+            if T.sozmi(raw) and j + 1 < len(g['words']) and P.tutuqmi(g['words'][j + 1]):
+                qosh[2] = int(T.norm(raw)[-1:] in ('o', 'g'))
         if guruh != 'yaroqli':
-            rows.append(r + [''] * 8)
+            rows.append(r + [''] * 17 + qosh)
             continue
         w, a = T.norm(t), A[t]
         if a['unk']:
@@ -114,9 +146,11 @@ def tokenlar_qatorlari(Tg, A, kodlar, gid):
             if sum(mg) != len(gr) or len(kd) != len(m) or not all(KOD_RE.fullmatch(k) for k in kd):
                 raise SystemExit("TO'XTA — morfema grafemalari / kodlari mos emas")
             r += [len(gr), T.unli_soni(gr), len(m), mg[0], ','.join(map(str, mg[1:])), ','.join(kd[1:]), holat, kd[0]]
+            r += _qism_ustun(w, a['kam']) + _qism_ustun(w, a['kop'])
         else:
-            r += [len(gr), T.unli_soni(gr), '', '', '', '', holat, '']
-        rows.append(r)
+            r += [len(gr), T.unli_soni(gr), '', '', '', '', holat, ''] + [''] * 6
+        r += [type_id(tuz, t), len(T.grafemalar(w)), int(gr[-1] in T.UNLI)]
+        rows.append(r + qosh)
     return rows
 
 
@@ -186,10 +220,10 @@ def klauza_nazorat(rows, tb, K, gid):
 # ---------------------------------------------------------------- cells_*.csv
 def kataklar(chiq, nat, ph):
     Qd, yn = nat['qatorlar'], (lambda v: 'yes' if v else 'no')                   # noqa: E731
-    r1 = [[tarif, c['x'], c['n'], son(c['y']), son(c['sd']), yn(c['fitga'])]
-          for nom, tarif in (('Q1 treebank tor', 'narrow'), ('Q1 treebank keng', 'broad'), ('Q4b A: treebank V0', 'automatic'))
+    r1 = [[qn, c['x'], c['n'], son(c['y']), son(c['sd']), yn(c['fitga'])]
+          for nom, qn in (('Q1 treebank tor', 'clause_narrow'), ('Q2 jami (max score)', 'morpheme_standard'), ('Q3 jami', 'syllable'))
           for c in Qd[nom]['jadval']]
-    yoz_csv(chiq / 'cells_table1.csv', ['definition', 'x', 'n', 'mean_y', 'sd', 'in_fit'], r1)
+    yoz_csv(chiq / 'cells_table1.csv', ['row', 'x', 'n', 'mean_y', 'sd', 'in_fit'], r1)
     A1 = ph['E8']['i']
     r = [[qn, c['x'], c['n'], son(c['y']), son(c['sd']), son(c['m']), yn(c['fitga'])]
          for nom, qn in (('Q1 treebank keng', 'treebank_broad'), ('Q1 K1 VDU', 'K1_automatic'), ('Q1 K2 VDU', 'K2_automatic'))
@@ -213,33 +247,43 @@ def kataklar(chiq, nat, ph):
 DATA_DICTIONARY = """# Data dictionary
 
 All files are UTF-8 CSV with a header row, comma separator and `\\n` line ends. Empty cell = not applicable.
-**No surface form, lemma or root text is released**: every column is a count, a length, an identifier or a closed-vocabulary
-code. Floats are written with full precision (Python `repr`).
+**No surface form, lemma or root text is released**: every column is a count, a length, an identifier, a keyed hash or a
+closed-vocabulary code. Floats are written with full precision (Python `repr`).
 
 Sentence identifiers are `<source>-<n>` with `n` counted from 1 inside each source, in the order used by `code/tahlil.py`
 (K1/K2: corpus order; UT/UzUDT: order of the 1 182 treebank sentences in the analysis, UzUDT s130/s132 duplicates
-removed). They are package-internal and are **not** UD `sent_id`s. The same `sentence_id` is used in `tokens.csv` and
-`clauses.csv`; row order in both files is the order of observations in the analysis (which fixes the bootstrap draws).
+removed). `UT-<n>` is UD_Uzbek-UT `sent_id` n (sentences 1–250 news, 251–500 fiction — used by post hoc E3); UzUDT
+numbers are package-internal. The same `sentence_id` is used in `tokens.csv` and `clauses.csv`; row order in both files
+is the order of observations in the analysis (which fixes the bootstrap draws).
 
-## tokens.csv — one row per token (K1, K2: corpus tokens; UT, UzUDT: UD tokens without PUNCT)
+## tokens.csv — one row per token (K1, K2: corpus tokens = words of the sentence; UT, UzUDT: UD tokens without PUNCT)
 
 | column | type | definition |
 |---|---|---|
 | source | K1 / K2 / UT / UzUDT | corpus (K1 news / scientific-technical Uzbek; K2 Uzbek translation of Tagore; UT and UzUDT — UD treebanks r2.18) |
 | sentence_id | string | see above |
 | token_id | int | position of the token in its sentence, from 1 |
-| token_class | valid / apostrophe_only / punctuation / digit / non_alphabet | prereg §2 and tuzatish_1: `apostrophe_only` = token consisting only of apostrophe marks (checked before cleaning; excluded from Q2 and Q3); after cleaning (lower case, apostrophes unified to `'`, edge punctuation stripped) `punctuation` = nothing left, `digit` = contains a digit, `non_alphabet` = contains a character outside the Uzbek Latin alphabet; `valid` = everything else. Columns below are filled only for `valid` tokens |
-| n_graphemes | int | number of graphemes of the normalised word (hyphens removed; `sh`, `ch`, `o'`, `g'` one grapheme; `ng` one grapheme unless a morpheme boundary of the chosen analysis falls between `n` and `g` — for non-analysed tokens no boundaries) |
-| n_syllables | int | number of vowel graphemes (a, e, i, o, u, o') = syllables (Q3 x) |
-| n_morphemes | int | number of morphemes in the max(score) analysis (Q2 x); `analysed` tokens only |
+| token_class | valid / apostrophe_only / punctuation / digit / non_alphabet | prereg §2 and tuzatish_1: `apostrophe_only` = token consisting only of apostrophe marks (checked before cleaning; excluded from Q2 and Q3); after cleaning (lower case, apostrophes unified to `'`, edge punctuation stripped) `punctuation` = nothing left, `digit` = contains a digit, `non_alphabet` = contains a character outside the Uzbek Latin alphabet; `valid` = everything else. Measurement columns are filled only for `valid` tokens |
+| n_graphemes | int | graphemes of the normalised word (hyphens removed; `sh`, `ch`, `o'`, `g'` one grapheme; `ng` one grapheme unless a morpheme boundary of the max(score) analysis falls between `n` and `g`; non-analysed tokens: no boundaries) |
+| n_syllables | int | vowel graphemes (a, e, i, o, u, o') = syllables (Q3 x) |
+| n_morphemes | int | morphemes in the max(score) analysis (Q2 x); `analysed` only |
 | root_len | int | graphemes in the root (first morpheme); `analysed` only |
 | suffix_lens | comma list of int | graphemes of each suffix, left to right; empty for a bare root |
 | suffix_type_codes | comma list of codes | analyser element code of each suffix, aligned with `suffix_lens` (e.g. `X3` case, `X` plural, `X2` possessive, `U5` person — see `code/posthoc.py`, `QOSHIMCHA_TURI`); a composite suffix carries its component codes joined by `+` (e.g. `X3+A2`) |
 | analyzer_status | analysed / unknown / mismatch | `analysed` — the analysis concatenates to the surface word (Q2 sample); `unknown` — root not identified; `mismatch` — analysis does not reproduce the surface form (excluded from Q2) |
 | pos_code | code | analyser code of the root element (e.g. `C` noun, `G` verb); `analysed` only |
+| n_morphemes_fewest, root_len_fewest, suffix_lens_fewest | int, int, comma list | Q4(c) «fewest morphemes» selection rule: the same three quantities for the candidate analysis with the fewest morphemes that reproduces the surface form (= max(score) analysis when there is no other candidate); `analysed` only |
+| n_morphemes_most, root_len_most, suffix_lens_most | int, int, comma list | the same for the «most morphemes» rule |
+| type_id | decimal int | word-type identifier: tokens with the same cleaned surface form share it. First 64 bits of HMAC-SHA256 keyed with an undisclosed salt held only by the authors (not distributed); **the text cannot be recovered from it** and no unsalted hash is used. For grouping types only (Table A2, post hoc E10e, E11) |
+| n_graphemes_unsegmented | int | graphemes when `ng` is always one grapheme (no morpheme boundaries) — sensitivity row «Q3 ng har doim 1» |
+| final_vowel | 0 / 1 | 1 if the last grapheme (as counted in `n_graphemes`) is a vowel (post hoc E6: open / closed one-syllable words) |
+| is_word | 0 / 1 | token contains at least one letter or digit (the Q1 word criterion) |
+| unit_id | int | K1/K2 only: the automatic unit (V0) of the token = `clause_id` of the `automatic` row in `clauses.csv` |
+| ends_o_g_before_apostrophe | 0 / 1 | K1/K2 only, filled for a word immediately followed by an `apostrophe_only` token: 1 if the word ends in `o` or `g` (post hoc E4) |
 
-Derived quantities: Q2 y = n_graphemes / n_morphemes (analysed tokens); n_graphemes = root_len + Σ suffix_lens.
-Q3 sample = valid tokens with n_graphemes > 1 and n_syllables > 0; Q3 y = n_graphemes / n_syllables.
+Derived quantities: Q2 y = n_graphemes / n_morphemes (analysed tokens); n_graphemes = root_len + Σ suffix_lens (and the
+same identity for the fewest / most columns). Q3 sample = valid tokens with n_graphemes > 1 and n_syllables > 0;
+Q3 y = n_graphemes / n_syllables.
 
 ## clauses.csv — one row per unit (clause or automatic unit), including units with 0 words
 
@@ -249,20 +293,22 @@ Q3 sample = valid tokens with n_graphemes > 1 and n_syllables > 0; Q3 y = n_grap
 | clause_id | int | unit index in the sentence, from 1 |
 | clause_type | main / subordinate / NA | `main` = the unit headed by the UD `root`; `NA` for automatic units |
 | relation | UD deprel / NA | base deprel (subtype removed) of the unit head: root, advcl, ccomp, conj, parataxis, csubj, xcomp, acl ...; `NA` for automatic units |
-| n_words | int | words of the unit that contain at least one letter or digit (punctuation-only words not counted); units with 0 words are not part of x (Q1) |
+| n_words | int | words of the unit that contain at least one letter or digit; units with 0 words are not part of x (Q1) |
 | definition | narrow / broad / automatic | `narrow` — gold clause, clause heads `root, ccomp, advcl, csubj, parataxis` and predicate-linking `conj` (`xcomp`, `acl` not clauses); `broad` — the same plus `xcomp`, `acl`; `automatic` — verb-delimited unit V0 (cut after every maximal verb chain); treebank and K1/K2 |
 
-Q1 x = number of units with n_words > 0 in a sentence; y = their mean n_words. Words are whitespace tokens of the
-sentence text with edge punctuation removed (treebank: system words of the analysis, not UD tokens).
+Q1 x = number of units with n_words > 0 in a sentence; y = their mean n_words. Treebank words are whitespace tokens of
+the sentence text with edge punctuation removed (system words of the analysis, not UD tokens).
 
-## cells_*.csv — published table cells (copied from results/natija.json and results/posthoc.json)
+## cells_*.csv — published table cells (recomputed from the files above by `code/reproduce_from_data.py`)
 
-- `cells_table1.csv` — Table 1: treebank Q1 cells for the three unit definitions (x, n, mean y, SD, used in fit = n ≥ 30).
-- `cells_A1.csv` — Table A1: broad treebank, K1 and K2 automatic units; `model_m_x` = a·x^b of the simple model.
-- `cells_A2.csv` — Table A2: Q2 by word types (`n_types` distinct analysed word forms), mean y, mean root length R(x) and
-  mean suffix length S(x). Not recomputable from `tokens.csv` (types are not identified in the release).
-- `cells_A3.csv` — Table A3: part-type decomposition (E7). `first_part` = main clause M(k) or root R(x); `other_parts` =
-  subordinate clause S(k) or suffix S(x); `y_pure_mixture` = [first(1) + (x − 1)·other(2)]/x; `observed_minus_pure` = mean_y − y_pure_mixture.
+- `cells_table1.csv` — Table 1: cells of the three main series — `clause_narrow` (Q1, treebank, gold narrow clauses),
+  `morpheme_standard` (Q2, max(score) analysis), `syllable` (Q3): x, n, mean y, SD, used in fit (n ≥ 30).
+- `cells_A1.csv` — Table A1: broad treebank clauses, K1 and K2 automatic units; `model_m_x` = a·x^b of the simple model.
+- `cells_A2.csv` — Table A2: Q2 by word types (`n_types` distinct analysed word types, grouped by `type_id`), mean y,
+  mean root length R(x) and mean suffix length S(x).
+- `cells_A3.csv` — Table A3: part-type decomposition (post hoc E7). `clause_narrow`: `first_part` = main clause M(k),
+  `other_parts` = subordinate clause S(k), `mean_y` = y(k); `morpheme_standard`: `first_part` = root R(x), `other_parts` =
+  suffix S(x), `mean_y` = y(x); `y_pure_mixture` = [first(1) + (x − 1)·other(2)]/x; `observed_minus_pure` = mean_y − y_pure_mixture.
 """
 
 README = """# {title}
@@ -271,7 +317,8 @@ Version {ver} · 2026 · {authors}
 
 This package accompanies the article *What the Menzerath–Altmann exponent measures: clauses, morphemes and syllables
 in Uzbek*. It contains the preregistration, the frozen analysis script and its single run, the post hoc analyses,
-all figures, and the token- and clause-level data needed to recompute the main fit table **without any text**.
+all figures, and token- and clause-level data (no text) from which every reported table, row and replication can be
+recomputed.
 
 ## Contents
 
@@ -283,7 +330,7 @@ all figures, and the token- and clause-level data needed to recompute the main f
 | `code/tahlil.py` | frozen confirmatory analysis (Q1–Q5); produced `results/natija.*` in one run |
 | `code/posthoc.py` | post hoc analyses E1–E11 (not confirmatory); produced `results/posthoc.*` |
 | `code/rasm_en.py`, `code/rasm_uz.py` | figures (English / Uzbek labels) from the two JSON result files; no computation |
-| `code/reproduce_from_data.py` | recomputes the main fit table from `data/` and checks it against `results/natija.json` |
+| `code/reproduce_from_data.py` | recomputes the results from `data/` with the functions of `tahlil.py` / `posthoc.py` and compares them with `results/` |
 | `code/zenodo_eksport.py` | the script that built this package |
 | `results/natija.md`, `natija.json` | confirmatory results (Uzbek-language report; JSON has every number) |
 | `results/posthoc.md`, `posthoc.json` | post hoc results |
@@ -300,9 +347,9 @@ The working language of the scripts and reports is Uzbek; identifiers such as `q
 
 | item | script | file / key |
 |---|---|---|
-| Table 1 (treebank cells, three unit definitions) | `tahlil.py` | `natija.json` → `qatorlar` → `Q1 treebank tor`, `Q1 treebank keng`, `Q4b A: treebank V0` → `jadval`; `data/cells_table1.csv` |
-| Table 2 (fits: a, b, 95 % interval, verdict) | `tahlil.py` | `natija.json` → `qatorlar` → `fit`, `oraliq`, `hukm`; recomputed by `reproduce_from_data.py` |
-| Q4(a), Q4(b), Q4(c) differences | `tahlil.py` | `natija.json` → `Q4a_keng_minus_tor`, `Q4b_A_minus_B`, `Q4c` |
+| Table 1 (cells: Q1 narrow clauses, Q2 morphemes, Q3 syllables) | `tahlil.py` | `natija.json` → `qatorlar` → `Q1 treebank tor`, `Q2 jami (max score)`, `Q3 jami` → `jadval`; `data/cells_table1.csv` |
+| Table 2 (fits: a, b, 95 % interval, verdict) | `tahlil.py` | `natija.json` → `qatorlar` → `fit`, `oraliq`, `hukm` |
+| Table 3 (Q4 differences: unit definition, segmentation rule) | `tahlil.py` | `natija.json` → `Q4a_keng_minus_tor`, `Q4b_A_minus_B`, `Q4c` |
 | Q5 random model | `tahlil.py` | `natija.json` → `Q5` |
 | Sensitivity rows | `tahlil.py` | `natija.json` → `sezgirlik` |
 | Table A1 | `posthoc.py` (E8i) | `posthoc.json` → `E8` → `i`; `data/cells_A1.csv` |
@@ -319,31 +366,47 @@ Environment used for the published run: Python 3.9.6, `numpy==2.0.2`, `scipy==1.
 ```
 python3 -m venv venv && . venv/bin/activate
 pip install numpy==2.0.2 scipy==1.13.1 matplotlib==3.9.4
-```
-
-**1. Main fit table from the released data** (standalone):
-
-```
-python code/reproduce_from_data.py
-```
-
-It rebuilds the observations of seven of the nine main rows (Q1 treebank narrow / broad, Q1 K1 and K2 automatic
-units, Q4(b) treebank automatic units, Q2, Q3), the Q4(a)/Q4(b) paired differences and the token exclusion counts from
-`data/clauses.csv` and `data/tokens.csv`, runs the frozen `tahlil.qator` (weighted NLS, 1 000-draw bootstrap, seed
-20261021, §4.4 verdict) and compares a, b, c, the 95 % intervals, the cells and the verdict with `results/natija.json`;
-exit code 0 = all equal. With the versions above the values are bit-identical. The two Q4(c) rows (fewest / most
-morphemes) need the alternative analyses of the analyser and are not recomputable from the release; nor are Q5 and the
-post hoc results that use word types or sentence text.
-
-**2. Figures from the result files** (standalone): the figure scripts read `natija/` next to themselves.
-
-```
+python code/reproduce_from_data.py                 # ~8 min; exit 0 = everything listed below equals results/
 mkdir -p code/natija && cp results/natija.json results/posthoc.json code/natija/
-python code/rasm_en.py     # -> code/natija/fig1.png ... fig6.png
-python code/rasm_uz.py     # -> code/natija/rasm_uz/*.png
+python code/rasm_en.py && python code/rasm_uz.py   # -> code/natija/fig*.png, code/natija/rasm_uz/*.png
 ```
 
-**3. Full pipeline** (not runnable from this package alone). The order is
+`reproduce_from_data.py` rebuilds every observation from `data/tokens.csv` and `data/clauses.csv` and runs the
+**unchanged** functions of `tahlil.py` (fit, bootstrap, §4.4 verdict, random model) and `posthoc.py`; where a
+`posthoc.py` function reads a word, the script supplies the released counts in its place (`type_id` for the word type,
+the length columns for graphemes and morphemes). Every recomputed section is compared with `results/natija.json` /
+`results/posthoc.json` and `data/cells_*.csv` and reported as *exact* (bit-identical) or with its largest relative
+difference (accepted up to 1e−9). With the versions above all sections are bit-identical. Seeds: bootstrap and Q5
+20261021; cluster bootstrap 20261022; type-preserving model 20261023; pooled-clause reassembly (1 000) 20261024.
+
+## Reproducibility
+
+**Recomputed from this package** (`code/reproduce_from_data.py`):
+
+- `natija.json` → `qatorlar`: all nine rows — Q1 treebank narrow, Q1 treebank broad, Q1 K1 and K2 automatic units,
+  Q4(b) treebank automatic units, Q2 (max score), Q4(c) fewest and most morphemes, Q3 — with cells, a, b, c, ΔAIC,
+  bootstrap intervals, verdicts, empty-unit counts;
+- `Q4a_keng_minus_tor`, `Q4b_A_minus_B`, `Q4c` (both paired differences, the sign criterion), `Q4c_ozgargan_token`;
+- `Q5`: 100 pooled-clause reassemblies (seed 20261021), each b, interval and verdict, and the summary;
+- `sezgirlik`: all sensitivity rows (last cell removed, UT and UzUDT separately, unknown words as x = 1, Q2 by corpus,
+  Q3 with `ng` always one grapheme);
+- `tokenlar` (token exclusion counts) and the sentence counts in `materiallar`;
+- `posthoc.json`: E1, E2, E3, E4, E5, E6, E7, E8a–g, E8i, E8k, E10a–e, E10g, E11a–g — including the 1 000
+  type-preserving and 1 000 pooled-clause replications behind Fig. 2;
+- `data/cells_table1.csv`, `cells_A1.csv`, `cells_A2.csv`, `cells_A3.csv`.
+
+**Recomputable only in the authors' original repository** (they need sentence text, UD files or repository history,
+which are not distributed):
+
+- `posthoc.json` → `E8h` — alignment of UD tokens with system words (multiword tokens, words split into several UD
+  tokens) and a check of the preregistration commit history;
+- `posthoc.json` → `E10f` — punctuation inside the source lines of the longest K1/K2 sentences;
+- `posthoc.json` → `E11h` — gold UPOS of the token before each clause boundary (and the long-K2-sentence table in the
+  same section);
+- in `natija.json` → `materiallar`, the held-out exclusion counts (0) and the positive control (re-built narrow units equal
+  to the gold units, 1182/1182), and the run fingerprints in `langar`.
+
+**Full pipeline** (original repository). From its root:
 
 ```
 python3 {sikl}/tahlil.py --db COPY.db     # once
@@ -352,9 +415,9 @@ python3 {sikl}/rasm_en.py
 python3 {sikl}/rasm_uz.py
 ```
 
-run from the root of the authors' research repository: the scripts need the morphological analyser and its lexicon
-database (`--db` is a copy of it, checked by md5), the sentence texts of K1/K2 and of the treebanks, and helper modules of
-an earlier study. Those are not distributed here; this package releases their numeric output (`data/`) instead.
+The scripts need the morphological analyser and its lexicon database (`--db` is a copy of it, checked by md5), the
+sentence texts of K1/K2 and of the treebanks, and helper modules of an earlier study; this package releases their numeric
+output (`data/`) instead.
 
 ### The run-once rule
 
@@ -388,6 +451,12 @@ authors' machine-translation system (sentence hashes and 8-word window hashes; s
 K2 0, treebank 0 — nothing was excluded. The package itself contains no sentence text; its files were scanned with the
 same filter before release (0 matches).
 
+## Word-type identifiers
+
+`type_id` in `data/tokens.csv` is only for grouping tokens into word types (Table A2, post hoc E10e, E11): it is a keyed
+hash (HMAC-SHA256, first 64 bits) of the cleaned surface form with an undisclosed salt that is not distributed, so the text
+cannot be recovered from it; no unsalted hash of any word is used anywhere in the package.
+
 ## Sources and licences
 
 - UD_Uzbek-UT and UD_Uzbek-UzUDT, release 2.18 (Universal Dependencies). Only counts derived from them are released;
@@ -402,7 +471,7 @@ See `CITATION.cff`.
 
 MIT = """MIT License
 
-Copyright (c) 2026 Z. Sirojiddinov, M. Khakimov
+Copyright (c) 2026 Ziyoviddin Sirojiddinov, Muftakh Khakimov
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -425,7 +494,7 @@ SOFTWARE.
 
 CC_BY = """Creative Commons Attribution 4.0 International (CC BY 4.0)
 
-Copyright (c) 2026 Z. Sirojiddinov, M. Khakimov
+Copyright (c) 2026 Ziyoviddin Sirojiddinov, Muftakh Khakimov
 
 All files in this package except those in `code/` (preregistration, documentation, results, figures and data) are
 licensed under the Creative Commons Attribution 4.0 International License. The files in `code/` are licensed under
@@ -465,6 +534,35 @@ def zenodo():
 # ---------------------------------------------------------------- tekshiruvlar
 SIR = re.compile(r'(?i)(api[_-]?key|sec' r'ret|passw(or)?d|token\s*[:=]\s*[\'"]?[0-9A-Za-z_-]{20,}|AIza[0-9A-Za-z_-]{20,}|'
                  r'gh[pousr]_[0-9A-Za-z]{20,}|sk-[0-9A-Za-z]{20,}|BEGIN [A-Z ]*PRIVATE KEY|GEM' r'INI|DATABASE_URL\s*=)')
+
+
+def type_id_tekshir(tuz, A, tr):
+    """type_id: (1) har tip — bitta id, to'qnashuv yo'q; (2) tuzsiz xesh (sha256 / md5 / sha1, tozalangan va
+    normallangan shakl, 64-bit o'nlik va hex) birorta id ga teng emas; (3) tokens.csv dagi id lar faqat tuzli xeshdan."""
+    turlar = sorted(A)
+    ids = {t: type_id(tuz, t) for t in turlar}
+    toq = len(set(ids.values())) != len(ids)
+    toplam = set(ids.values())
+    tuzsiz = 0
+    for t in turlar:
+        for s in {t, T.norm(t)}:
+            for h in (hashlib.sha256, hashlib.md5, hashlib.sha1):
+                d = h(s.encode('utf-8')).digest()
+                tuzsiz += str(int.from_bytes(d[:8], 'big')) in toplam or d.hex() in toplam or d[:8].hex() in toplam
+    i = TOKEN_USTUN.index('type_id')
+    faylda = {r[i] for r in tr if r[i] != ''}
+    return {'ok': not toq and tuzsiz == 0 and faylda <= toplam, 'tip': len(ids), 'toqnashuv': toq,
+            'tuzsiz_xesh_mosligi': tuzsiz, 'fayldagi_id': len(faylda)}
+
+
+def tuz_paketda(chiq, tuz):
+    """Tuz (hex yoki bayt) paketning hech bir faylida yo'q."""
+    for p in chiq.rglob('*'):
+        if p.is_file() and '.git' not in p.relative_to(chiq).parts:
+            b = p.read_bytes()
+            if tuz in b or tuz.hex().encode() in b or tuz.hex().upper().encode() in b:
+                return True
+    return False
 
 
 def sonmi(v):
@@ -565,12 +663,17 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument('--db', required=True)
     p.add_argument('--chiqish', default=str(Path.home() / 'menzerath-uzbek'))
+    p.add_argument('--tuz', default=str(TUZ), help='maxfiy tuz fayli (hex); repo ichida bo\'lsa TO\'XTA')
     a = p.parse_args()
     chiq = Path(a.chiqish).expanduser().resolve()
     if chiq.exists():
         raise SystemExit(f"TO'XTA — {chiq} mavjud")
     if REPO in chiq.parents or chiq == REPO:
         raise SystemExit("TO'XTA — chiqish asosiy repo ish daraxti ichida")
+    tuz_yol = Path(a.tuz).expanduser().resolve()
+    if not tuz_yol.is_file() or REPO in tuz_yol.parents or chiq in tuz_yol.parents:
+        raise SystemExit("TO'XTA — tuz fayli yo'q yoki repo / chiqish ichida")
+    tuz = bytes.fromhex(tuz_yol.read_text(encoding='utf-8').strip())
     db0 = T.md5(T.DB)
     if T.md5(a.db) != db0:
         raise SystemExit("TO'XTA — --db nusxasi md5 ishchi DB ga teng emas")
@@ -615,9 +718,9 @@ def main():
             shutil.copy2(f_, chiq / 'results' / 'figures' / k / f_.name)
     d = chiq / 'data'
     d.mkdir()
-    tr = tokenlar_qatorlari(Tg, A, kodlar, gid)
-    yoz_csv(d / 'tokens.csv', ['source', 'sentence_id', 'token_id', 'token_class', 'n_graphemes', 'n_syllables',
-                               'n_morphemes', 'root_len', 'suffix_lens', 'suffix_type_codes', 'analyzer_status', 'pos_code'], tr)
+    tr = tokenlar_qatorlari(Tg, A, kodlar, gid, K, tuz)
+    yoz_csv(d / 'tokens.csv', TOKEN_USTUN, tr)
+    tid = type_id_tekshir(tuz, A, tr)
     kr = klauza_qatorlari(tb, K, gid)
     klauza_nazorat(kr, tb, K, gid)
     yoz_csv(d / 'clauses.csv', ['sentence_id', 'clause_id', 'clause_type', 'relation', 'n_words', 'definition'], kr)
@@ -653,11 +756,12 @@ def main():
             yozuv.append({'path': rel, 'sha256': sha256(p_), 'bytes': p_.stat().st_size,
                           'source': 'generated by code/zenodo_eksport.py', 'source_commit': head[:7]})
     tek = tekshiruvlar(chiq, [g['text'] for g in tb + K['K1'] + K['K2']])
+    tek['e'] = {**tid, 'ok': tid['ok'] and not tuz_paketda(chiq, tuz)}
     man = {'package': SARLAVHA, 'version': VERSIYA, 'export_commit': head[:7],
            'export_tree_clean_for_sources': not iflos, 'analyser_db_md5': db0,
            'materials': {'treebank': tb_s, **k_s},
            'rows': {'tokens.csv': len(tr), 'clauses.csv': len(kr)},
-           'checks': {'no_text_in_data': tek['a']['ok'], 'held_out_matches': sum(tek['b']['moslik'].values()),
+           'checks': {'no_text_in_data': tek['a']['ok'], 'type_id_salted_only': tek['e']['ok'], 'held_out_matches': sum(tek['b']['moslik'].values()),
                       'raw_sentence_matches': sum(tek['c']['xom_matn_moslik'].values()),
                       'total_bytes_excl_manifest': tek['d']['jami_bayt']},
            'files': yozuv}
@@ -667,7 +771,7 @@ def main():
     print(json.dumps({'chiqish': str(chiq), 'export_commit': head[:7], 'manba_iflos': iflos or None,
                       'tokens': len(tr), 'clauses': len(kr), 'manifest_sha256': sha256(chiq / 'MANIFEST.json'),
                       'tekshiruv': tek}, ensure_ascii=False, indent=1, default=str))
-    return 0 if all(tek[k]['ok'] for k in 'abcd') and not iflos else 1
+    return 0 if all(tek[k]['ok'] for k in 'abcde') and not iflos else 1
 
 
 if __name__ == '__main__':
